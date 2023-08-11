@@ -1,0 +1,57 @@
+plt.rcParams["figure.figsize"] = (10, 5)
+saved_style_state = matplotlib.rcParams.copy() 
+spice_df = pd.read_excel(spice_path, sheet_name="Tea")
+print("done")
+spice_df.head(8) 
+
+def concat_cells(column):
+    new_title = ""
+    for value in column:
+        if isinstance(value, str):
+            new_title += f"{value} ".replace("-", "")
+    return new_title.strip()
+
+
+rough_headers = spice_df.head(6)
+unedited_headers = list(rough_headers.apply(concat_cells))
+unedited_headers
+
+new_headers = [
+    "year",
+    "us_population",  #  july 12  millions # leave this here, as documentation
+    "supply_production",  #  million pounds
+    "supply_imports",
+    "supply_total_supply",
+    "nonfood_use_net_change",  # in stocks5
+    "nonfood_use_total_use",
+    "nonfood_use_exports",
+    "food_availability_total",
+    "food_availability_per_capita_availability_pounds",
+    "food_availability_per_capita_availability_gallons",  #  gallons
+]
+
+tea_df = pd.read_excel(
+    spice_path,  # The file we're loading up
+    sheet_name="Tea",  # The sheet that we want to read this time
+    skiprows=6,  # the number of rows to ignore at the top
+    skipfooter=7,  
+    names=new_headers,  # the new column names
+)
+tea_df.tail(8) 
+
+tea_df["year_dt"] = pd.to_datetime(dict(year=tea_df.year, month=7, day=1))
+tea_df.drop(['year'], axis=1, inplace=True, errors="ignore")
+tea_df.drop(['us_population'], axis=1, inplace=True, errors="ignore")
+tea_df.drop(['food_availability_per_capita_availability_gallons'], axis=1, inplace=True, errors="ignore")
+tea_df.drop(['food_availability_per_capita_availability_pounds'], axis=1, inplace=True, errors="ignore")
+tea_df.set_index("year_dt", inplace=True)
+tea_df.head()
+
+tea_df.plot().legend(loc="center left", bbox_to_anchor=(1.0, 0.5))
+
+tea_df.plot().legend(loc="center left", bbox_to_anchor=(1.0, 0.5))
+plt.title("Supply and consumption of tea in United States", fontsize=15)
+plt.xlabel("year_dt", fontsize=14)
+plt.ylabel("growth(Million pounds)", fontsize=14)
+plt.grid(True)
+plt.show() 
